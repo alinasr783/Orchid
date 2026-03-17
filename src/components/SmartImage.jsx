@@ -42,13 +42,11 @@ export default function SmartImage({
       <img
         src={shouldLoad ? src : undefined}
         alt={alt}
-        width={width}
-        height={height}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         fetchpriority={priority ? 'high' : 'low'}
         sizes={sizes}
-        style={{ width: '100%', height: '100%', objectFit: 'inherit' }}
+        style={{ width: '100%', height: 'auto', objectFit: 'inherit', display: 'block' }}
         className={`transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
         onError={onError}

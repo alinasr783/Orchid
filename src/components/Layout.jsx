@@ -47,7 +47,10 @@ export default function Layout() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="Orchid Chemicals" className="h-14 w-24 sm:h-20 sm:w-20 object-contain" width="96" height="56" decoding="async" loading="eager" />
+            <picture>
+              <source media="(max-width: 767px)" srcSet="/favicon.svg" />
+              <img src={logo} alt="Orchid Chemicals" className="h-14 w-24 sm:h-20 sm:w-20 object-contain" width="96" height="56" decoding="async" loading="eager" />
+            </picture>
             <div className="flex flex-col">
               <span className="text-sm sm:text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white"></span>
             </div>
@@ -72,6 +75,7 @@ export default function Layout() {
             <button
               onClick={toggleTheme}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              aria-label="Toggle theme"
             >
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </button>
@@ -80,6 +84,7 @@ export default function Layout() {
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              aria-label="Toggle language"
             >
               <Globe className="h-4 w-4" />
               <span className="text-sm font-medium">{language === 'ar' ? 'EN' : 'AR'}</span>

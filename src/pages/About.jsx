@@ -1,6 +1,7 @@
 import { FlaskConical, Award, Users, Calendar, MessageCircle } from 'lucide-react'
 import { useLanguage } from '../contexts/useLanguage'
 import whoUsImage from '../assits/who_us.png'
+import SmartImage from '../components/SmartImage'
 
 export default function About() {
   const { t, dir, language } = useLanguage()
@@ -74,7 +75,7 @@ export default function About() {
   ]
 
   const handleContactExpert = () => {
-    const message = dir === 'ar' 
+    const message = language === 'ar' 
       ? `مرحباً، أود التحدث مع خبيركم حول مشروعي. هل يمكنكم المساعدة؟`
       : `Hello, I would like to speak with your expert about my project. Can you help?`
     
@@ -95,10 +96,11 @@ export default function About() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <img 
-              src={whoUsImage} 
-              alt="Orchid Chemicals About Us" 
+            <SmartImage
+              src={whoUsImage}
+              alt="Orchid Chemicals About Us"
               className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+              priority
             />
           </div>
         </div>
@@ -139,28 +141,49 @@ export default function About() {
           </div>
 
           <div className="relative">
-            <div className={`absolute ${dir === 'ar' ? 'right-1/2' : 'left-1/2'} transform ${dir === 'ar' ? 'translate-x-1/2' : '-translate-x-1/2'} h-full w-1 bg-emerald-200 dark:bg-emerald-800`}></div>
-            <div className="space-y-12">
-              {milestones.map((milestone, i) => (
-                <div key={i} className={`flex items-center ${i % 2 === 0 ? (dir === 'ar' ? 'md:flex-row' : 'md:flex-row-reverse') : ''}`}>
-                  <div className="w-1/2"></div>
-                  <div className={`absolute ${dir === 'ar' ? 'right-1/2' : 'left-1/2'} transform ${dir === 'ar' ? 'translate-x-1/2' : '-translate-x-1/2'} w-4 h-4 bg-emerald-600 rounded-full border-4 border-white dark:border-slate-900`}></div>
-                  <div className={`w-1/2 ${i % 2 === 0 ? (dir === 'ar' ? 'md:pl-12' : 'md:pr-12') : (dir === 'ar' ? 'md:pr-12' : 'md:pl-12')} px-6`}>
-                    <div className="bg-white dark:bg-slate-700 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Calendar className="h-5 w-5 text-emerald-600" />
-                        <span className="text-sm font-medium text-emerald-600">{milestone.year}</span>
+            <div
+              className={`hidden md:block absolute ${dir === 'rtl' ? 'right-1/2' : 'left-1/2'} top-0 bottom-0 w-1 bg-emerald-200 dark:bg-emerald-800 transform ${dir === 'rtl' ? 'translate-x-1/2' : '-translate-x-1/2'}`}
+            ></div>
+            <div
+              className={`md:hidden absolute ${dir === 'rtl' ? 'right-4' : 'left-4'} top-0 bottom-0 w-px bg-emerald-200 dark:bg-emerald-800`}
+            ></div>
+            <div className="space-y-8 sm:space-y-10 md:space-y-12">
+              {milestones.map((milestone, i) => {
+                const isEven = i % 2 === 0
+                const desktopDirection = isEven ? 'md:flex-row' : 'md:flex-row-reverse'
+                const desktopPad = isEven ? 'md:pl-12 md:pr-0' : 'md:pr-12 md:pl-0'
+                const mobilePad = dir === 'rtl' ? 'pr-12 pl-0' : 'pl-12 pr-0'
+                const mobileDotPos = dir === 'rtl' ? 'right-4' : 'left-4'
+                const desktopDotPos = dir === 'rtl' ? 'right-1/2' : 'left-1/2'
+                const desktopDotTransform = dir === 'rtl' ? 'translate-x-1/2' : '-translate-x-1/2'
+                const cardTextAlign = dir === 'rtl' ? 'text-right' : 'text-left'
+                const metaRow = dir === 'rtl' ? 'flex-row-reverse justify-end' : 'justify-start'
+                return (
+                  <div key={i} className={`relative flex flex-col md:items-center ${desktopDirection}`}>
+                    <div className="hidden md:block md:w-1/2"></div>
+                    <div
+                      className={`md:hidden absolute ${mobileDotPos} top-6 w-4 h-4 bg-emerald-600 rounded-full border-4 border-white dark:border-slate-900`}
+                    ></div>
+                    <div
+                      className={`hidden md:block absolute ${desktopDotPos} top-1/2 transform -translate-y-1/2 ${desktopDotTransform} w-4 h-4 bg-emerald-600 rounded-full border-4 border-white dark:border-slate-900`}
+                    ></div>
+                    <div className={`w-full md:w-1/2 ${mobilePad} ${desktopPad}`}>
+                      <div className={`bg-white dark:bg-slate-700 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600 ${cardTextAlign} break-words`}>
+                        <div className={`flex items-center gap-3 mb-3 ${metaRow}`}>
+                          <Calendar className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                          <span className="text-sm font-medium text-emerald-600">{milestone.year}</span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                          {language === 'ar' ? milestone.title_ar : milestone.title_en}
+                        </h3>
+                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                          {language === 'ar' ? milestone.desc_ar : milestone.desc_en}
+                        </p>
                       </div>
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                        {language === 'ar' ? milestone.title_ar : milestone.title_en}
-                      </h3>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">
-                        {language === 'ar' ? milestone.desc_ar : milestone.desc_en}
-                      </p>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

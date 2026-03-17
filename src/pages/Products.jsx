@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageCircle, Search, Filter, Package, ArrowRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/useLanguage'
 import productsImage from '../assits/products.png'
+import SmartImage from '../components/SmartImage'
 
 export default function Products() {
   const { t, dir, language } = useLanguage()
@@ -11,6 +12,9 @@ export default function Products() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
+  const [pageIndex, setPageIndex] = useState(1)
+  const [total, setTotal] = useState(0)
+  const PAGE_SIZE = 12
   const [page, setPage] = useState({ title: '', title_ar: '', description: '', description_ar: '', hero_url: '' })
 
   const categories = [
@@ -23,31 +27,38 @@ export default function Products() {
     { id: 'equipment', name_ar: 'تجهيزات المختبرات', name_en: 'Laboratory Equipment' }
   ]
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
     try {
-      // Try to fetch from Supabase first
-      const { data, error } = await supabase
+      const from = (pageIndex - 1) * PAGE_SIZE
+      const to = from + PAGE_SIZE - 1
+      let query = supabase
         .from('products')
-        .select('*')
+        .select('id,name,category,description,origin,purity,cas,card_image_url', { count: 'exact' })
         .order('name')
+      if (category !== 'all') {
+        query = query.eq('category', category)
+      }
+      if (search && search.trim()) {
+        const term = search.trim()
+        query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%`)
+      }
+      const { data, error, count } = await query.range(from, to)
       
       if (error) {
         console.warn('Supabase error:', error)
-        // Don't throw, just use fallback data
-      } else if (data && data.length > 0) {
+      } else if (data && data.length >= 0) {
         setProducts(data)
+        setTotal(count || 0)
         setLoading(false)
         return
       }
     } catch (err) {
       console.warn('Network/Supabase error:', err)
-      // Continue to fallback data
     }
     
-    // Fallback data for when Supabase is not available
     console.log('Using fallback product data')
-    setProducts([
+    const fb = [
       { 
         id: 1, 
         name: 'Paracetamol API', 
@@ -87,23 +98,34 @@ export default function Products() {
         cas: '50-78-2',
         image: '/placeholder-product.jpg'
       }
-    ])
+    ]
+    const filtered = fb.filter(p => {
+      const nameText = (language === 'ar' ? (p.name_ar || p.name) : p.name) || ''
+      const descText = (language === 'ar' ? (p.description_ar || p.description) : p.description) || ''
+      const matchesSearch = search ? (nameText.toLowerCase().includes(search.toLowerCase()) || descText.toLowerCase().includes(search.toLowerCase())) : true
+      const matchesCategory = category === 'all' || p.category === category
+      return matchesSearch && matchesCategory
+    })
+    const from = (pageIndex - 1) * PAGE_SIZE
+    const to = from + PAGE_SIZE
+    setProducts(filtered.slice(from, to))
+    setTotal(filtered.length)
     setLoading(false)
-  }
+  }, [category, pageIndex, search, language])
 
   useEffect(() => {
     const id = setTimeout(() => {
       fetchProducts()
-    }, 0)
+    }, search ? 300 : 0)
     return () => clearTimeout(id)
-  }, [])
+  }, [fetchProducts, search])
 
   useEffect(() => {
     ;(async () => {
       try {
         const { data, error } = await supabase
           .from('products_page')
-          .select('*')
+          .select('title,title_ar,description,description_ar,hero_url')
           .limit(1)
           .maybeSingle()
         if (!error && data) {
@@ -129,14 +151,7 @@ export default function Products() {
     window.open(`https://wa.me/201104620984?text=${encodeURIComponent(message)}`, '_blank')
   }
 
-  const filteredProducts = products.filter(product => {
-    const nameText = (language === 'ar' ? (product.name_ar || product.name) : product.name) || ''
-    const descText = (language === 'ar' ? (product.description_ar || product.description) : product.description) || ''
-    const matchesSearch = nameText.toLowerCase().includes(search.toLowerCase()) ||
-                          descText.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = category === 'all' || product.category === category
-    return matchesSearch && matchesCategory
-  })
+  const filteredProducts = products
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -160,10 +175,11 @@ export default function Products() {
             </div>
           </div>
           <div className="flex justify-center">
-            <img 
-              src={page.hero_url || productsImage} 
-              alt="Orchid Chemicals Products" 
+            <SmartImage
+              src={page.hero_url || productsImage}
+              alt="Orchid Chemicals Products"
               className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+              priority
             />
           </div>
         </div>
@@ -190,7 +206,10 @@ export default function Products() {
                   type="text"
                   placeholder={t('searchPlaceholder')}
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    setPageIndex(1)
+                  }}
                   className={`w-full ${dir === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white`}
                 />
               </div>
@@ -198,7 +217,10 @@ export default function Products() {
                 <Filter className={`absolute ${dir === 'ar' ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400`} />
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => {
+                    setCategory(e.target.value)
+                    setPageIndex(1)
+                  }}
                   className={`${dir === 'ar' ? 'pr-10 pl-8' : 'pl-10 pr-8'} py-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 appearance-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white`}
                 >
                   {categories.map(cat => (
@@ -229,11 +251,10 @@ export default function Products() {
                 <div key={product.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-md transition">
                   <div className="aspect-square bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
                     {(product.card_image_url || product.thumbnail_url || product.image_url || product.image) ? (
-                      <img
+                      <SmartImage
                         src={product.card_image_url || product.thumbnail_url || product.image_url || product.image}
                         alt={language === 'ar' ? (product.name_ar || product.name) : product.name}
                         className="w-full h-full object-cover"
-                        loading="lazy"
                         onError={(e) => {
                           e.currentTarget.src = `https://via.placeholder.com/600x600/0f172a/ffffff?text=${encodeURIComponent(
                             language === 'ar' ? (product.name_ar || product.name) : product.name
@@ -290,6 +311,31 @@ export default function Products() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {!loading && total > 0 && (
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <button
+                onClick={() => setPageIndex((p) => Math.max(1, p - 1))}
+                disabled={pageIndex === 1}
+                className={`px-3 py-2 rounded-lg border ${pageIndex === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                السابق
+              </button>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                {pageIndex} / {Math.max(1, Math.ceil(total / PAGE_SIZE))}
+              </div>
+              <button
+                onClick={() => setPageIndex((p) => {
+                  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+                  return Math.min(totalPages, p + 1)
+                })}
+                disabled={pageIndex >= Math.ceil(total / PAGE_SIZE)}
+                className={`px-3 py-2 rounded-lg border ${pageIndex >= Math.ceil(total / PAGE_SIZE) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                التالي
+              </button>
             </div>
           )}
 

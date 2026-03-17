@@ -1,16 +1,18 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
-import Home from './pages/Home'
-import Services from './pages/Services'
-import ServiceDetail from './pages/ServiceDetail'
-import About from './pages/About'
-import Products from './pages/Products'
-import ProductDetail from './pages/ProductDetail'
-import Contact from './pages/Contact'
-import Dashboard from './pages/Dashboard'
-import NotFound from './pages/NotFound'
+
+const Home = lazy(() => import('./pages/Home'))
+const Services = lazy(() => import('./pages/Services'))
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'))
+const About = lazy(() => import('./pages/About'))
+const Products = lazy(() => import('./pages/Products'))
+const ProductDetail = lazy(() => import('./pages/ProductDetail'))
+const Contact = lazy(() => import('./pages/Contact'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 const router = createBrowserRouter([
   {
@@ -36,7 +38,9 @@ export default function App() {
   return (
     <LanguageProvider>
       <ThemeProvider>
-        <RouterProvider router={router} />
+        <Suspense fallback={<div style={{ padding: 24, textAlign: 'center' }}>...loading</div>}>
+          <RouterProvider router={router} />
+        </Suspense>
       </ThemeProvider>
     </LanguageProvider>
   )

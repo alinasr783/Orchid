@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/useLanguage'
 import { supabase } from '../lib/supabase'
+import SmartImage from './SmartImage'
 
 export default function Partners() {
   const { t, language } = useLanguage()
@@ -157,7 +158,7 @@ export default function Partners() {
             >
               <div className="aspect-video bg-slate-100 dark:bg-slate-700 rounded-lg mb-4 overflow-hidden">
                 {partner.logo_url ? (
-                  <img
+                  <SmartImage
                     src={partner.logo_url}
                     alt={language === 'ar' ? partner.name_ar : partner.name}
                     className="w-full h-full object-contain p-4"

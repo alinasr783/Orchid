@@ -195,6 +195,9 @@ export default function ProductDetail() {
                       src={productImageUrls[mainImageIndex]}
                       alt={language === 'ar' ? product?.name_ar || product?.name : product?.name}
                       className="w-full h-full object-cover"
+                      width="900"
+                      height="900"
+                      decoding="async"
                       onError={(e) => {
                         e.currentTarget.src = `https://via.placeholder.com/900x900/0f172a/ffffff?text=${encodeURIComponent(
                           language === 'ar' ? product?.name_ar || product?.name : product?.name
@@ -230,6 +233,9 @@ export default function ProductDetail() {
                           alt=""
                           className="w-full h-full object-cover"
                           loading="lazy"
+                          decoding="async"
+                          width="300"
+                          height="300"
                           onError={(e) => {
                             e.currentTarget.src = `https://via.placeholder.com/300x300/0f172a/ffffff?text=${encodeURIComponent(
                               language === 'ar' ? product?.name_ar || product?.name : product?.name
@@ -265,6 +271,9 @@ export default function ProductDetail() {
                             src={url}
                             alt={language === 'ar' ? product?.name_ar || product?.name : product?.name}
                             className="w-full h-full object-cover"
+                            width="900"
+                            height="900"
+                            decoding="async"
                             onError={(e) => {
                               e.currentTarget.src = `https://via.placeholder.com/900x900/0f172a/ffffff?text=${encodeURIComponent(
                                 language === 'ar' ? product?.name_ar || product?.name : product?.name
@@ -300,6 +309,9 @@ export default function ProductDetail() {
                           alt=""
                           className="w-full h-full object-cover"
                           loading="lazy"
+                          decoding="async"
+                          width="300"
+                          height="300"
                           onError={(e) => {
                             e.currentTarget.src = `https://via.placeholder.com/300x300/0f172a/ffffff?text=${encodeURIComponent(
                               language === 'ar' ? product?.name_ar || product?.name : product?.name

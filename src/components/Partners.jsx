@@ -1,16 +1,34 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../contexts/useLanguage'
 import { supabase } from '../lib/supabase'
-import SmartImage from './SmartImage'
 
 export default function Partners() {
   const { t, language } = useLanguage()
   const [partners, setPartners] = useState([])
   const [loading, setLoading] = useState(true)
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const sectionRef = useRef(null)
 
   useEffect(() => {
-    fetchPartners()
+    const el = sectionRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true)
+          io.disconnect()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
   }, [])
+
+  useEffect(() => {
+    if (!shouldLoad) return
+    fetchPartners()
+  }, [shouldLoad])
 
   const fetchPartners = async () => {
     try {
@@ -116,9 +134,9 @@ export default function Partners() {
     }
   }
 
-  if (loading) {
+  if (loading && !shouldLoad) {
     return (
-      <section className="py-16 bg-slate-50 dark:bg-slate-900">
+      <section ref={sectionRef} className="py-16 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">{t('ourPartners')}</h2>
@@ -138,11 +156,20 @@ export default function Partners() {
   }
 
   if (partners.length === 0) {
-    return null
+    return (
+      <section ref={sectionRef} className="py-16 bg-slate-50 dark:bg-slate-900">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">{t('ourPartners')}</h2>
+            <p className="text-slate-600 dark:text-slate-400">{t('partnersDesc')}</p>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
-    <section className="py-16 bg-slate-50 dark:bg-slate-900">
+    <section ref={sectionRef} className="py-16 bg-slate-50 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">{t('ourPartners')}</h2>
@@ -158,10 +185,14 @@ export default function Partners() {
             >
               <div className="aspect-video bg-slate-100 dark:bg-slate-700 rounded-lg mb-4 overflow-hidden">
                 {partner.logo_url ? (
-                  <SmartImage
+                  <img
                     src={partner.logo_url}
                     alt={language === 'ar' ? partner.name_ar : partner.name}
                     className="w-full h-full object-contain p-4"
+                    loading="lazy"
+                    decoding="async"
+                    width="400"
+                    height="200"
                     onError={(e) => {
                       e.target.src = `https://via.placeholder.com/200x100/6b7280/ffffff?text=${encodeURIComponent(
                         language === 'ar' ? partner.name_ar : partner.name

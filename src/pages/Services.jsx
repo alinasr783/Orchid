@@ -1,7 +1,6 @@
 import { CheckCircle, Beaker, TestTube, BarChart3, Microscope, Dna, Building2, MessageCircle } from 'lucide-react'
 import { useLanguage } from '../contexts/useLanguage'
 import servicesImage from '../assits/services.png'
-import SmartImage from '../components/SmartImage'
 
 export default function Services() {
   const { t, dir, language } = useLanguage()
@@ -153,11 +152,10 @@ export default function Services() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <SmartImage
-              src={servicesImage}
-              alt="Orchid Chemicals Services"
+            <img 
+              src={servicesImage} 
+              alt="Orchid Chemicals Services" 
               className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-              priority
             />
           </div>
         </div>

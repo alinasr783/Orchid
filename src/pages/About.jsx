@@ -1,7 +1,6 @@
 import { FlaskConical, Award, Users, Calendar, MessageCircle } from 'lucide-react'
 import { useLanguage } from '../contexts/useLanguage'
 import whoUsImage from '../assits/who_us.png'
-import SmartImage from '../components/SmartImage'
 
 export default function About() {
   const { t, dir, language } = useLanguage()
@@ -96,11 +95,10 @@ export default function About() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <SmartImage
-              src={whoUsImage}
-              alt="Orchid Chemicals About Us"
+            <img 
+              src={whoUsImage} 
+              alt="Orchid Chemicals About Us" 
               className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-              priority
             />
           </div>
         </div>

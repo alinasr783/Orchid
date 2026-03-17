@@ -3,7 +3,6 @@ import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook } from 'lucide-reac
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/useLanguage'
 import contactImage from '../assits/contact.png'
-import SmartImage from '../components/SmartImage'
 
 export default function Contact() {
   const { t, dir } = useLanguage()
@@ -86,11 +85,10 @@ export default function Contact() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <SmartImage
-              src={contactImage}
-              alt="Orchid Chemicals Contact"
+            <img 
+              src={contactImage} 
+              alt="Orchid Chemicals Contact" 
               className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-              priority
             />
           </div>
         </div>

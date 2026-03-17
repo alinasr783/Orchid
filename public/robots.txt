@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow common development paths
+Disallow: /dashbord
+Disallow: /dashboard
+
+# Sitemap (update if available)
+Sitemap: https://www.orchidchemi.com/sitemap.xml
+

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/useLanguage'
 import { useTheme } from '../contexts/useTheme'
 import logo from '../assits/logo.png'
-import SmartImage from './SmartImage'
 
 export default function Layout() {
   const [open, setOpen] = useState(false)
@@ -48,7 +47,7 @@ export default function Layout() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <SmartImage src={logo} alt="Orchid Chemicals" className="h-14 w-24 sm:h-20 sm:w-20 object-contain" priority />
+            <img src={logo} alt="Orchid Chemicals" className="h-14 w-24 sm:h-20 sm:w-20 object-contain" width="96" height="56" decoding="async" loading="eager" />
             <div className="flex flex-col">
               <span className="text-sm sm:text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white"></span>
             </div>
@@ -170,7 +169,7 @@ export default function Layout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <div className="text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-3 mb-4">
-              <SmartImage src={logo} alt="Orchid Chemicals" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
+              <img src={logo} alt="Orchid Chemicals" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
               <span className="text-lg sm:text-xl font-semibold text-white">{t('orchidChemicals')}</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">

@@ -3,7 +3,6 @@ import { FlaskConical, CheckCircle, ArrowRight, Beaker, TestTube, BarChart3, Mic
 import { useLanguage } from '../contexts/useLanguage'
 import Partners from '../components/Partners'
 import heroImage from '../assits/hero.png'
-import SmartImage from '../components/SmartImage'
 
 export default function Home() {
   const { t, dir, language } = useLanguage()
@@ -78,11 +77,15 @@ export default function Home() {
             </div>
           </div>
           <div className="flex justify-center lg:justify-end">
-            <SmartImage
-              src={heroImage}
-              alt="Orchid Chemicals Hero"
+            <img 
+              src={heroImage} 
+              alt="Orchid Chemicals Hero" 
               className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl object-contain rounded-2xl shadow-2xl"
-              priority
+              width="1200"
+              height="800"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
             />
           </div>
         </div>

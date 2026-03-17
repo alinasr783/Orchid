@@ -1,51 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteCompression from 'vite-plugin-compression'
-import imagemin from 'unplugin-imagemin/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    viteCompression({
-      algorithm: 'brotliCompress',
-      ext: '.br',
-      deleteOriginFile: false,
-    }),
-    imagemin({
-      // safe defaults
-      gifsicle: { optimizationLevel: 3 },
-      mozjpeg: { quality: 75, progressive: true },
-      optipng: { optimizationLevel: 5 },
-      pngquant: { quality: [0.6, 0.8] },
-      svgo: {
-        plugins: [
-          { name: 'removeViewBox', active: false },
-          { name: 'cleanupIDs', active: false },
-        ],
-      },
-      webp: { quality: 75 },
-      avif: { quality: 50 },
-    }),
-  ],
-  build: {
-    sourcemap: false,
-    target: 'es2019',
-    cssCodeSplit: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('scheduler')) return 'vendor-react'
-            if (id.includes('@supabase')) return 'vendor-supabase'
-            if (id.includes('swiper')) return 'vendor-swiper'
-            return 'vendor'
-          }
-        },
-      },
-    },
-    chunkSizeWarningLimit: 900,
-  },
+  plugins: [react()],
   server: {
     proxy: {
       '/supabase': {

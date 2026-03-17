@@ -3,7 +3,6 @@ import { lazy, Suspense } from 'react'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
-
 const Home = lazy(() => import('./pages/Home'))
 const Services = lazy(() => import('./pages/Services'))
 const ServiceDetail = lazy(() => import('./pages/ServiceDetail'))
@@ -38,7 +37,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <ThemeProvider>
-        <Suspense fallback={<div style={{ padding: 24, textAlign: 'center' }}>...loading</div>}>
+        <Suspense fallback={<div className="p-6 text-center">Loading...</div>}>
           <RouterProvider router={router} />
         </Suspense>
       </ThemeProvider>

@@ -217,12 +217,12 @@ function ProductsPanel() {
         ) : (
           <div className="space-y-2">
             {items.map((item) => (
-              <div key={item.id} className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{item.name}</div>
-                  <div className="text-xs text-slate-500">{item.category}</div>
+              <div key={item.id} className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{item.name}</div>
+                  <div className="text-xs text-slate-500 truncate">{item.category}</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-800" onClick={() => onEdit(item)}>تعديل</button>
                   <button className="px-3 py-1 rounded bg-red-600 text-white" onClick={() => onDelete(item.id)}>حذف</button>
                 </div>
@@ -349,62 +349,63 @@ function PartnersPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
       <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
         <SectionHeader title={editingId ? 'تعديل شريك' : 'إضافة شريك'} />
         {error && <div className="mb-2 text-sm text-red-600">{error}</div>}
-        <form onSubmit={onSubmit} className="space-y-3">
-          {['name','website_url','name_ar','priority'].map((field) => (
-            <div key={field}>
-              <label className="block text-sm mb-1">{field}</label>
-              <input
-                name={field}
-                value={form[field]}
-                onChange={onChange}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
-              />
-            </div>
-          ))}
-          <div>
-            <label className="block text-sm mb-1">description</label>
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={onChange}
-              rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
-            />
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {['name','website_url','name_ar','priority'].map((field) => (
+              <div key={field} className="flex flex-col">
+                <label className="block text-sm mb-1">{field}</label>
+                <input
+                  name={field}
+                  value={form[field]}
+                  onChange={onChange}
+                  className={`w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent ${
+                    field === 'website_url' ? 'truncate overflow-hidden text-ellipsis whitespace-nowrap' : ''
+                  }`}
+                />
+              </div>
+            ))}
           </div>
-          <div>
-            <label className="block text-sm mb-1">description_ar</label>
-            <textarea
-              name="description_ar"
-              value={form.description_ar}
-              onChange={onChange}
-              rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {['description','description_ar'].map((field) => (
+              <div key={field} className="flex flex-col">
+                <label className="block text-sm mb-1">{field}</label>
+                <textarea
+                  name={field}
+                  value={form[field]}
+                  onChange={onChange}
+                  rows={4}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
+                />
+              </div>
+            ))}
           </div>
-          <div>
+          <div className="flex flex-col">
             <label className="block text-sm mb-1">logo_url</label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 name="logo_url"
                 value={form.logo_url}
                 onChange={onChange}
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
               />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onUploadLogo}
-                className="text-sm"
-                title="اختر شعار لرفعه"
-              />
+              <label className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 cursor-pointer text-sm">
+                <span>رفع شعار</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onUploadLogo}
+                  className="hidden"
+                  title="اختر شعار لرفعه"
+                />
+              </label>
             </div>
             {form.logo_url && (
               <div className="mt-2">
-                <img src={form.logo_url} alt="logo preview" className="h-24 rounded border border-slate-200 dark:border-slate-700 object-contain" />
+                <img src={form.logo_url} alt="logo preview" className="h-24 w-full max-w-sm rounded border border-slate-200 dark:border-slate-700 object-contain" />
               </div>
             )}
           </div>
@@ -418,22 +419,24 @@ function PartnersPanel() {
             />
             <label htmlFor="is_active" className="text-sm">نشط</label>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
-          >
-            {editingId ? 'حفظ التعديل' : 'إضافة'}
-          </button>
-          {editingId && (
+          <div className="flex flex-wrap gap-2">
             <button
-              type="button"
-              className="ml-2 px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800"
-              onClick={() => { setEditingId(null); setForm(empty) }}
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
             >
-              إلغاء
+              {editingId ? 'حفظ التعديل' : 'إضافة'}
             </button>
-          )}
+            {editingId && (
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800"
+                onClick={() => { setEditingId(null); setForm(empty) }}
+              >
+                إلغاء
+              </button>
+            )}
+          </div>
         </form>
       </div>
       <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
@@ -443,12 +446,12 @@ function PartnersPanel() {
         ) : (
           <div className="space-y-2">
             {items.map((item) => (
-              <div key={item.id} className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{item.name}</div>
-                  <div className="text-xs text-slate-500">{item.website_url}</div>
+              <div key={item.id} className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{item.name}</div>
+                  <div className="text-xs text-slate-500 truncate text-left" dir="ltr">{item.website_url}</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-800" onClick={() => onEdit(item)}>تعديل</button>
                   <button className="px-3 py-1 rounded bg-red-600 text-white" onClick={() => onDelete(item.id)}>حذف</button>
                 </div>
@@ -497,186 +500,12 @@ export default function Dashboard() {
         >
           الشركاء
         </button>
-        <button
-          className={`px-4 py-2 rounded-lg ${tab === 'products_page' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800'}`}
-          onClick={() => setTab('products_page')}
-        >
-          إعدادات صفحة المنتجات
-        </button>
       </div>
-      {tab === 'products' ? <ProductsPanel /> : tab === 'partners' ? <PartnersPanel /> : <ProductsPageSettingsPanel />}
+      {tab === 'products' ? <ProductsPanel /> : <PartnersPanel />}
     </div>
   )
 }
 
-function ProductsPageSettingsPanel() {
-  const empty = useMemo(() => ({
-    title: '',
-    title_ar: '',
-    description: '',
-    description_ar: '',
-    hero_url: '',
-  }), [])
-  const [form, setForm] = useState(empty)
-  const [rowId, setRowId] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  async function load() {
-    setLoading(true)
-    setError('')
-    try {
-      const { data, error } = await supabase
-        .from('products_page')
-        .select('*')
-        .limit(1)
-        .maybeSingle()
-      if (error) throw error
-      if (data) {
-        setRowId(data.id)
-        setForm({
-          title: data.title || '',
-          title_ar: data.title_ar || '',
-          description: data.description || '',
-          description_ar: data.description_ar || '',
-          hero_url: data.hero_url || '',
-        })
-      }
-    } catch (err) {
-      console.warn(err)
-      setError('تعذر جلب إعدادات الصفحة، تأكد من وجود جدول products_page')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  function onChange(e) {
-    const { name, value } = e.target
-    setForm((f) => ({ ...f, [name]: value }))
-  }
-
-  async function onUploadHero(e) {
-    const file = e.target.files && e.target.files[0]
-    if (!file) return
-    if (!file.type.startsWith('image/')) {
-      setError('يجب اختيار صورة')
-      return
-    }
-    setLoading(true)
-    setError('')
-    try {
-      const url = await uploadToStorage('products', file)
-      setForm((f) => ({ ...f, hero_url: url }))
-    } catch (err) {
-      console.error(err)
-      setError('تعذر رفع الصورة إلى التخزين')
-    } finally {
-      setLoading(false)
-      e.target.value = ''
-    }
-  }
-
-  async function onSubmit(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      if (rowId) {
-        const { error } = await supabase
-          .from('products_page')
-          .update(form)
-          .eq('id', rowId)
-        if (error) throw error
-      } else {
-        const { data, error } = await supabase
-          .from('products_page')
-          .insert([form])
-          .select('id')
-          .single()
-        if (error) throw error
-        setRowId(data?.id || null)
-      }
-    } catch (err) {
-      console.error(err)
-      setError('حدث خطأ أثناء الحفظ')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-      <SectionHeader title="إعدادات صفحة المنتجات" />
-      {error && <div className="mb-2 text-sm text-red-600">{error}</div>}
-      <form onSubmit={onSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {['title','title_ar'].map((field) => (
-            <div key={field} className="flex flex-col">
-              <label className="block text-sm mb-1">{field}</label>
-              <input
-                name={field}
-                value={form[field]}
-                onChange={onChange}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
-              />
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {['description','description_ar'].map((field) => (
-            <div key={field} className="flex flex-col">
-              <label className="block text-sm mb-1">{field}</label>
-              <textarea
-                name={field}
-                value={form[field]}
-                onChange={onChange}
-                rows={4}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
-              />
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-col">
-          <label className="block text-sm mb-1">hero_url</label>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <input
-              name="hero_url"
-              value={form.hero_url}
-              onChange={onChange}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
-            />
-            <label className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 cursor-pointer text-sm">
-              <span>رفع صورة</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onUploadHero}
-                className="hidden"
-                title="اختر صورة لرفعها"
-              />
-            </label>
-          </div>
-          {form.hero_url && (
-            <div className="mt-2">
-              <img src={form.hero_url} alt="hero preview" className="h-32 w-full max-w-lg rounded border border-slate-200 dark:border-slate-700 object-cover" />
-            </div>
-          )}
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
-        >
-          حفظ
-        </button>
-      </form>
-    </div>
-  )
-}
 function ProductImagesManager({ productId, embedded = false }) {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)

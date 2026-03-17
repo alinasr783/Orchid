@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/useLanguage'
 import contactImage from '../assits/contact.png'
@@ -182,6 +182,15 @@ export default function Contact() {
                 <MessageCircle className="h-5 w-5" />
                 {t('contactWhatsApp')}
               </button>
+              <a
+                href="https://www.facebook.com/share/1FPbbgPCRq/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-medium"
+              >
+                <Facebook className="h-5 w-5" />
+                Facebook
+              </a>
             </div>
           </div>
 

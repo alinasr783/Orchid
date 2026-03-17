@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Menu, X, Phone, Mail, MapPin, Globe, Sun, Moon, Home, Briefcase, Info, Package, MessageCircle } from 'lucide-react'
+import { Menu, X, Phone, Mail, MapPin, Globe, Sun, Moon, Home, Briefcase, Info, Package, MessageCircle, Facebook } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/useLanguage'
 import { useTheme } from '../contexts/useTheme'
@@ -12,6 +12,9 @@ export default function Layout() {
   const location = useLocation()
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (open) {
+      setTimeout(() => setOpen(false), 0)
+    }
   }, [location.pathname])
   const navItems = [
     { to: '/', label: t('home'), iconDesktop: <Home className="h-4 w-4 text-slate-500 dark:text-slate-400" />, iconMobile: <Home className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> },
@@ -109,6 +112,16 @@ export default function Layout() {
                 <span className="font-medium text-slate-900 dark:text-white">{item.label}</span>
               </Link>
             ))}
+            <a
+              href="https://www.facebook.com/share/1FPbbgPCRq/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className={`w-full flex items-center gap-3 py-3 px-4 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}
+            >
+              <Facebook className="h-5 w-5 text-blue-600" />
+              <span className="font-medium text-slate-900 dark:text-white">Facebook</span>
+            </a>
           </div>
         </nav>
       </div>
@@ -157,6 +170,15 @@ export default function Layout() {
               <Link to="/about" className="block hover:text-emerald-400 transition">{t('about')}</Link>
               <Link to="/products" className="block hover:text-emerald-400 transition">{t('products')}</Link>
               <Link to="/contact" className="block hover:text-emerald-400 transition">{t('contact')}</Link>
+              <a 
+                href="https://www.facebook.com/share/1FPbbgPCRq/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-emerald-400 transition"
+              >
+                <Facebook className="h-4 w-4" />
+                <span>Facebook</span>
+              </a>
             </div>
           </div>
         </div>

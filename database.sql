@@ -1,6 +1,13 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.admins (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  email text NOT NULL UNIQUE,
+  password text NOT NULL,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT admins_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.contacts (
   id integer NOT NULL DEFAULT nextval('contacts_id_seq'::regclass),
   name character varying NOT NULL,

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { FlaskConical, CheckCircle, ArrowRight, Beaker, TestTube, BarChart3, Microscope, Dna, Building2 } from 'lucide-react'
 import { useLanguage } from '../contexts/useLanguage'
 import Partners from '../components/Partners'
-import heroImage from '../assits/hero.png'
+import heroPicture from '../assits/hero.png?format=avif;webp;png&width=480;768;1024;1440;1920&as=picture'
 
 export default function Home() {
   const { t, dir, language } = useLanguage()
@@ -77,16 +77,24 @@ export default function Home() {
             </div>
           </div>
           <div className="flex justify-center lg:justify-end">
-            <img 
-              src={heroImage} 
-              alt="Orchid Chemicals Hero" 
-              className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl object-contain rounded-2xl shadow-2xl"
-              width="1200"
-              height="800"
-              loading="eager"
-              decoding="async"
-              fetchpriority="high"
-            />
+            <picture>
+              {Array.isArray(heroPicture && heroPicture.sources)
+                ? heroPicture.sources.map((s) => (
+                    <source key={s.type} srcSet={s.srcset} type={s.type} sizes="(max-width: 640px) 90vw, (max-width: 1024px) 70vw, 50vw" />
+                  ))
+                : null}
+              <img 
+                src={(heroPicture && heroPicture.img && heroPicture.img.src) || (typeof heroPicture === 'string' ? heroPicture : '/hero.png')}
+                srcSet={(heroPicture && heroPicture.img && heroPicture.img.srcset) || undefined}
+                alt="Orchid Chemicals Hero" 
+                className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl object-contain rounded-2xl shadow-2xl"
+                width="1200"
+                height="800"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
           </div>
         </div>
       </section>

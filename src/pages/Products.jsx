@@ -100,9 +100,11 @@ export default function Products() {
 
   useEffect(() => {
     ;(async () => {
+      const table = import.meta.env.VITE_PRODUCTS_PAGE_TABLE
+      if (!table) return
       try {
         const { data, error } = await supabase
-          .from('products_page')
+          .from(table)
           .select('*')
           .limit(1)
           .maybeSingle()
@@ -115,9 +117,7 @@ export default function Products() {
             hero_url: data.hero_url || '',
           })
         }
-      } catch {
-        // ignore
-      }
+      } catch (e) { void e }
     })()
   }, [])
 

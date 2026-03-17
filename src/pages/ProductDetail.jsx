@@ -9,6 +9,7 @@ import 'swiper/css/navigation'
 import { useLanguage } from '../contexts/useLanguage'
 import { useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { trackProductView } from '../lib/analytics'
 
 const fallbackProducts = [
   { 
@@ -137,6 +138,12 @@ export default function ProductDetail() {
     
     window.open(`https://wa.me/201104620984?text=${encodeURIComponent(message)}`, '_blank')
   }
+
+  useEffect(() => {
+    if (product?.id || product?.name) {
+      trackProductView(product.id ?? product.name)
+    }
+  }, [product])
 
   if (loading) {
     return (

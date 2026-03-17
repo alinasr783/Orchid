@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
+import { LayoutDashboard, Package, Users, BarChart3 } from 'lucide-react'
+import Overview from './Overview'
 import DashboardLogin from './DashboardLogin'
+import Visits from './Visits'
 import { supabase } from '../lib/supabase'
 
 function SectionHeader({ title }) {
@@ -467,7 +470,7 @@ function PartnersPanel() {
 
 export default function Dashboard() {
   const [session, setSession] = useState(null)
-  const [tab, setTab] = useState('products')
+  const [tab, setTab] = useState('overview')
 
   function logout() {
     localStorage.removeItem('admin_session')
@@ -479,29 +482,81 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">لوحة التحكم</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-500">{session.email}</span>
-          <button onClick={logout} className="px-3 py-2 rounded bg-slate-100 dark:bg-slate-800">خروج</button>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur border border-slate-200 dark:border-slate-700 p-6 mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">لوحة التحكم</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">إدارة المحتوى والواجهة بسهولة وكفاءة</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-500 hidden sm:inline">{session.email}</span>
+            <button onClick={logout} className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">خروج</button>
+          </div>
+        </div>
+        <div className="flex items-center justify-center mb-8">
+          <div className="inline-flex p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <button
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${tab === 'overview' ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow' : 'text-slate-600 dark:text-slate-300'}`}
+              onClick={() => setTab('overview')}
+            >
+              نظرة عامة
+            </button>
+            <button
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${tab === 'visits' ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow' : 'text-slate-600 dark:text-slate-300'}`}
+              onClick={() => setTab('visits')}
+            >
+              الزيارات
+            </button>
+            <button
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${tab === 'products' ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow' : 'text-slate-600 dark:text-slate-300'}`}
+              onClick={() => setTab('products')}
+            >
+              المنتجات
+            </button>
+            <button
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${tab === 'partners' ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow' : 'text-slate-600 dark:text-slate-300'}`}
+              onClick={() => setTab('partners')}
+            >
+              الشركاء
+            </button>
+          </div>
+        </div>
+        <div className="space-y-6">
+          {tab === 'overview' ? <Overview /> : tab === 'visits' ? <Visits /> : tab === 'products' ? <ProductsPanel /> : <PartnersPanel />}
         </div>
       </div>
-      <div className="flex items-center gap-2 mb-6">
-        <button
-          className={`px-4 py-2 rounded-lg ${tab === 'products' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800'}`}
-          onClick={() => setTab('products')}
-        >
-          المنتجات
-        </button>
-        <button
-          className={`px-4 py-2 rounded-lg ${tab === 'partners' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800'}`}
-          onClick={() => setTab('partners')}
-        >
-          الشركاء
-        </button>
-      </div>
-      {tab === 'products' ? <ProductsPanel /> : <PartnersPanel />}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+        <div className="mx-auto max-w-2xl px-3 pb-3">
+          <div className="relative rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-lg">
+            <ul className="flex items-stretch">
+              {[
+                { key: 'overview', label: 'نظرة عامة', icon: LayoutDashboard },
+                { key: 'visits', label: 'الزيارات', icon: BarChart3 },
+                { key: 'products', label: 'المنتجات', icon: Package },
+                { key: 'partners', label: 'الشركاء', icon: Users },
+              ].map((item) => {
+                const active = tab === item.key
+                const IconComp = item.icon
+                return (
+                  <li key={item.key} className="flex-1">
+                    <button
+                      type="button"
+                      onClick={() => setTab(item.key)}
+                      className={`w-full group flex flex-col items-center justify-center gap-1 py-3 ${active ? 'text-emerald-600' : 'text-slate-500 dark:text-slate-400'}`}
+                    >
+                      <span className={`inline-flex items-center justify-center h-10 w-10 rounded-xl transition-all ${active ? 'bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-500/20' : 'bg-transparent'}`}>
+                        <IconComp className={`h-5 w-5 ${active ? 'text-emerald-600' : 'group-hover:text-slate-700 dark:group-hover:text-slate-200'}`} />
+                      </span>
+                      <span className="text-xs font-medium">{item.label}</span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </div>
+      </nav>
     </div>
   )
 }

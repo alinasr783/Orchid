@@ -77,19 +77,16 @@ export default function Home() {
             </div>
           </div>
           <div className="flex justify-center lg:justify-end">
-            <picture>
-              <source media="(max-width: 767px)" srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
-              <img 
-                src={heroImage} 
-                alt="Orchid Chemicals Hero" 
-                className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl object-contain rounded-2xl shadow-2xl"
-                width="1200"
-                height="800"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-            </picture>
+            <img 
+              src={heroImage} 
+              alt="Orchid Chemicals Hero" 
+              className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl object-contain rounded-2xl shadow-2xl"
+              width="1200"
+              height="800"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
           </div>
         </div>
       </section>

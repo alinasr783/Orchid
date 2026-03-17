@@ -16,6 +16,26 @@ export default function Layout() {
       setTimeout(() => setOpen(false), 0)
     }
   }, [location.pathname])
+  const phone = '201104620984'
+  const message = language === 'ar' ? 'مرحباً، أود الاستفسار عن خدماتكم' : 'Hello, I would like to inquire about your services'
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+  useEffect(() => {
+    const titles = {
+      '/': language === 'ar' ? 'الرئيسية' : 'Home',
+      '/services': language === 'ar' ? 'خدماتنا' : 'Services',
+      '/about': language === 'ar' ? 'من نحن' : 'About',
+      '/products': language === 'ar' ? 'منتجاتنا' : 'Products',
+      '/contact': language === 'ar' ? 'تواصل معنا' : 'Contact',
+    }
+    const label = titles[location.pathname] || ''
+    document.title = `Rchid | ${label || 'Chemicals'}`
+    const link = document.querySelector('link[rel="icon"]')
+    if (link) link.setAttribute('href', logo)
+  }, [location.pathname, language])
+  const containerAlign = dir === 'rtl' ? 'text-right' : 'text-left'
+  const headingAlign = dir === 'rtl' ? 'text-right' : 'text-left'
+  const justifyClass = dir === 'rtl' ? 'justify-end' : 'justify-start'
+  const rowClass = dir === 'rtl' ? 'flex-row-reverse justify-end text-right' : 'justify-start text-left'
   const navItems = [
     { to: '/', label: t('home'), iconDesktop: <Home className="h-4 w-4 text-slate-500 dark:text-slate-400" />, iconMobile: <Home className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> },
     { to: '/services', label: t('services'), iconDesktop: <Briefcase className="h-4 w-4 text-slate-500 dark:text-slate-400" />, iconMobile: <Briefcase className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> },
@@ -132,6 +152,21 @@ export default function Layout() {
         <Outlet />
       </main>
 
+      {!open && (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="WhatsApp"
+          className={`fixed ${dir === 'rtl' ? 'left-4' : 'right-4'} bottom-4 z-50`}
+        >
+          <span className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-600 text-white shadow-lg hover:bg-emerald-700 transition">
+            <MessageCircle className="h-5 w-5" />
+            <span className="text-sm font-semibold">WhatsApp</span>
+          </span>
+        </a>
+      )}
+
       {/* Footer */}
       <footer className="bg-slate-900 dark:bg-slate-950 text-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -145,21 +180,30 @@ export default function Layout() {
             </p>
           </div>
 
-          <div className="text-center sm:text-left">
-            <h3 className="font-semibold text-white mb-3 text-sm sm:text-base">{t('contactInfo')}</h3>
+          <div className={containerAlign}>
+            <h3 className={`font-semibold text-white mb-3 text-sm sm:text-base ${headingAlign}`}>{t('contactInfo')}</h3>
             <div className="space-y-2 text-xs sm:text-sm">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className={`flex items-center ${rowClass} gap-2`}>
                 <Phone className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                 <span>01104620984</span>
               </div>
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className={`flex items-center ${rowClass} gap-2`}>
                 <Mail className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                 <span className="break-all">sales@orchidchemi.com</span>
               </div>
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className={`flex items-center ${rowClass} gap-2`}>
                 <MapPin className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                 <span>1 شارع الجوت، القاهرة</span>
               </div>
+              <a 
+                href="https://www.facebook.com/share/1FPbbgPCRq/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`flex items-center ${rowClass} gap-2 hover:text-emerald-400 transition`}
+              >
+                <Facebook className="h-4 w-4" />
+                <span>Facebook</span>
+              </a>
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { ChevronLeft, MessageCircle, Package } from 'lucide-react'
+import { ChevronLeft, MessageCircle, Package, Facebook } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Navigation } from 'swiper/modules'
 import 'swiper/css'
@@ -352,6 +352,15 @@ export default function ProductDetail() {
                 <MessageCircle className="h-5 w-5" />
                 {t('inquiryWhatsApp')}
               </button>
+              <a
+                href="https://www.facebook.com/share/1FPbbgPCRq/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-medium"
+              >
+                <Facebook className="h-5 w-5" />
+                Facebook
+              </a>
             </div>
           </div>
 

@@ -36,6 +36,8 @@ function ProductsPanel() {
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
+  const [savedPulse, setSavedPulse] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -56,6 +58,13 @@ function ProductsPanel() {
   function onChange(e) {
     const { name, value } = e.target
     setForm((f) => ({ ...f, [name]: value }))
+    if (errors[name]) {
+      setErrors((prev) => {
+        const cp = { ...prev }
+        delete cp[name]
+        return cp
+      })
+    }
   }
 
   async function onUploadCardImage(e) {
@@ -79,8 +88,17 @@ function ProductsPanel() {
     }
   }
 
+  function validate() {
+    const v = {}
+    if (!String(form.name || '').trim()) v.name = 'الاسم مطلوب'
+    if (!String(form.category || '').trim()) v.category = 'التصنيف مطلوب'
+    setErrors(v)
+    return Object.keys(v).length === 0
+  }
+
   async function onSubmit(e) {
     e.preventDefault()
+    if (!validate()) return
     setLoading(true)
     setError('')
     try {
@@ -91,22 +109,28 @@ function ProductsPanel() {
           .eq('id', editingId)
         if (error) throw error
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('products')
           .insert([form])
-          .select('id')
-          .single()
         if (error) throw error
-        if (data?.id) setEditingId(data.id)
       }
       setForm(empty)
       await load()
+      setSavedPulse(true)
+      setTimeout(() => setSavedPulse(false), 1200)
+      newProduct()
     } catch (err) {
       console.error(err)
       setError('حدث خطأ أثناء الحفظ')
     } finally {
       setLoading(false)
     }
+  }
+
+  function newProduct() {
+    setEditingId(null)
+    setForm(empty)
+    setErrors({})
   }
 
   async function onEdit(item) {
@@ -134,36 +158,56 @@ function ProductsPanel() {
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-        <SectionHeader title={editingId ? 'تعديل منتج' : 'إضافة منتج'} />
+      <div className={`rounded-xl border p-4 ${savedPulse ? 'border-emerald-400 ring-2 ring-emerald-200 dark:ring-emerald-900/40 transition' : ''} border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/40 backdrop-blur`}>
+        <div className="flex items-center justify-between mb-2">
+          <SectionHeader title={editingId ? 'تعديل منتج' : 'إضافة منتج'} />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={newProduct}
+              className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-sm"
+            >
+              منتج جديد
+            </button>
+          </div>
+        </div>
         {error && <div className="mb-2 text-sm text-red-600">{error}</div>}
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {['name','category','origin','purity','cas'].map((field) => (
-              <div key={field} className="flex flex-col">
+            {[
+              { key: 'name', label: 'الاسم', required: true, placeholder: 'مثال: Paracetamol API' },
+              { key: 'category', label: 'التصنيف', required: true, placeholder: 'مثال: apis / hplc' },
+              { key: 'origin', label: 'البراند', required: false, placeholder: 'مثال: Merck' },
+              { key: 'purity', label: 'النقاء', required: false, placeholder: 'مثال: 99.9%' },
+              { key: 'cas', label: 'CAS', required: false, placeholder: 'مثال: 103-90-2' },
+            ].map((f) => (
+              <div key={f.key} className="flex flex-col">
                 <label className="block text-sm mb-1">
-                  {field === 'origin' ? 'brand' : field}
+                  {f.label}{f.required ? <span className="text-red-600">*</span> : null}
                 </label>
                 <input
-                  name={field}
-                  value={form[field]}
+                  name={f.key}
+                  value={form[f.key]}
                   onChange={onChange}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
+                  placeholder={f.placeholder}
+                  className={`w-full px-3 py-2 rounded-lg border bg-transparent ${errors[f.key] ? 'border-red-500 focus:outline-none focus:ring-2 focus:ring-red-300' : 'border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-300'}`}
                 />
+                {errors[f.key] && <span className="text-xs text-red-600 mt-1">{errors[f.key]}</span>}
               </div>
             ))}
           </div>
           <div className="flex flex-col">
-            <label className="block text-sm mb-1">card_image_url</label>
+            <label className="block text-sm mb-1">رابط صورة الكارت</label>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 name="card_image_url"
                 value={form.card_image_url}
                 onChange={onChange}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
+                placeholder="https://..."
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-300"
               />
               <label className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 cursor-pointer text-sm">
-                <span>رفع صورة</span>
+                <span className="transition-transform duration-150 group-hover:scale-105">رفع صورة</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -180,24 +224,30 @@ function ProductsPanel() {
             )}
           </div>
           <div className="flex flex-col">
-            <label className="block text-sm mb-1">description</label>
+            <label className="block text-sm mb-1">الوصف</label>
             <textarea
               name="description"
               value={form.description}
               onChange={onChange}
               rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent"
+              placeholder="وصف مختصر للمنتج"
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-300"
             />
           </div>
           <div className="flex flex-col">
             <label className="block text-sm mb-2">صور المنتج</label>
             <ProductImagesManager productId={editingId} embedded />
+            {!editingId && (
+              <div className="mt-2 text-xs text-slate-500">
+                لرفع الصور، احفظ المنتج أولاً ثم اختر "تعديل" من القائمة.
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+              className={`px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 inline-flex items-center gap-2 ${loading ? 'animate-pulse' : ''}`}
             >
               {editingId ? 'حفظ التعديل' : 'إضافة'}
             </button>
@@ -205,10 +255,16 @@ function ProductsPanel() {
               <button
                 type="button"
                 className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800"
-                onClick={() => { setEditingId(null); setForm(empty) }}
+                onClick={newProduct}
               >
                 إلغاء
               </button>
+            )}
+            {loading && (
+              <span className="inline-flex items-center gap-2 text-sm text-slate-500">
+                <span className="inline-block h-4 w-4 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
+                جاري الحفظ...
+              </span>
             )}
           </div>
         </form>

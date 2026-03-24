@@ -409,22 +409,6 @@ export default function ProductDetail() {
                 <p className="text-slate-600 dark:text-slate-400">
                   {language === 'ar' ? product.description_ar : product.description}
                 </p>
-                {Array.isArray(product.seo_keywords) && product.seo_keywords.filter(Boolean).length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {product.seo_keywords
-                      .map((k) => String(k || '').trim())
-                      .filter(Boolean)
-                      .slice(0, 20)
-                      .map((kw) => (
-                        <span
-                          key={kw}
-                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs"
-                        >
-                          {kw}
-                        </span>
-                      ))}
-                  </div>
-                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

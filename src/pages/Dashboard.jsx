@@ -640,6 +640,19 @@ export default function Dashboard() {
     setSession(null)
   }
 
+  if (!supabase) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
+        <div className="max-w-md w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center">
+          <h1 className="text-xl font-semibold mb-2">لوحة التحكم غير متاحة</h1>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            إعدادات Supabase غير موجودة أو غير صحيحة على هذا النشر.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   if (!session) {
     return <DashboardLogin onSuccess={setSession} />
   }

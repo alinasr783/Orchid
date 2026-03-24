@@ -17,6 +17,7 @@ export default function DashboardLogin({ onSuccess }) {
     setLoading(true)
     setError('')
     try {
+      if (!supabase) throw new Error('لوحة التحكم غير مفعلة')
       const { data, error: qError } = await supabase
         .from('admins')
         .select('id,email')
@@ -33,7 +34,7 @@ export default function DashboardLogin({ onSuccess }) {
       }
     } catch (err) {
       setError('تعذر تسجيل الدخول، حاول مرة أخرى')
-      console.error(err)
+      if (import.meta.env.DEV) console.error(err)
     } finally {
       setLoading(false)
     }

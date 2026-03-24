@@ -3,7 +3,7 @@ import { Menu, X, Phone, Mail, MapPin, Globe, Sun, Moon, Home, Briefcase, Info, 
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/useLanguage'
 import { useTheme } from '../contexts/useTheme'
-import logoPicture from '../assits/logo.png?format=webp;png&width=96;168;320&as=picture'
+import logoPicture from '../assits/logo.png?format=avif;webp&width=96;168;320&as=picture'
 import { trackPageView } from '../lib/analytics'
 
 export default function Layout() {
@@ -13,7 +13,7 @@ export default function Layout() {
   const location = useLocation()
   const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/dashbord')
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
     setTimeout(() => setOpen(false), 0)
     trackPageView(location.pathname)
   }, [location.pathname])
@@ -32,7 +32,7 @@ export default function Layout() {
     document.title = `Rchid | ${label || 'Chemicals'}`
     const link = document.querySelector('link[rel="icon"]')
     if (link) {
-      const src = (logoPicture && logoPicture.img && logoPicture.img.src) || (typeof logoPicture === 'string' ? logoPicture : '/logo.png')
+      const src = (logoPicture && logoPicture.img && logoPicture.img.src) || (typeof logoPicture === 'string' ? logoPicture : '')
       link.setAttribute('href', src)
     }
   }, [location.pathname, language])
@@ -61,7 +61,7 @@ export default function Layout() {
                   ))
                 : null}
               <img
-                src={(logoPicture && logoPicture.img && logoPicture.img.src) || (typeof logoPicture === 'string' ? logoPicture : '/logo.png')}
+                src={(logoPicture && logoPicture.img && logoPicture.img.src) || (typeof logoPicture === 'string' ? logoPicture : '')}
                 srcSet={(logoPicture && logoPicture.img && logoPicture.img.srcset) || undefined}
                 alt="Orchid Chemicals"
                 className="h-14 w-24 sm:h-20 sm:w-20 object-contain"
@@ -200,7 +200,7 @@ export default function Layout() {
           <div className="text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-3 mb-4">
               <img
-                src={(logoPicture && logoPicture.img && logoPicture.img.src) || (typeof logoPicture === 'string' ? logoPicture : '/logo.png')}
+                src={(logoPicture && logoPicture.img && logoPicture.img.src) || (typeof logoPicture === 'string' ? logoPicture : '')}
                 alt="Orchid Chemicals"
                 className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
               />

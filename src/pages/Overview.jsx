@@ -33,6 +33,7 @@ export default function Overview() {
       setLoading(true)
       setError('')
       try {
+        if (!supabase) throw new Error(language === 'ar' ? 'إعدادات الإحصائيات غير متوفرة' : 'Analytics backend is not configured')
         const since = '30 days'
         const [kpisRes, pagesRes, refRes, geoRes] = await Promise.all([
           supabase.rpc('rpc_overview_kpis', { since }),

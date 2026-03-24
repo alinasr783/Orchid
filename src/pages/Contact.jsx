@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/useLanguage'
-import contactImage from '../assits/contact.png'
+import contactPicture from '../assits/contact.png?format=avif;webp&width=480;768;1024;1440&as=picture'
 
 export default function Contact() {
   const { t, dir } = useLanguage()
@@ -25,22 +25,6 @@ export default function Contact() {
     setLoading(true)
     
     try {
-      const { error } = await supabase
-        .from('contacts')
-        .insert([{
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          subject: formData.subject,
-          message: formData.message,
-          created_at: new Date().toISOString()
-        }])
-      
-      if (error) throw error
-      
-      setSuccess(true)
-      setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-      
       // Send WhatsApp notification
       const message = dir === 'ar'
         ? `رسالة جديدة من ${formData.name}\nالموضوع: ${formData.subject}\nالرسالة: ${formData.message}`
@@ -48,10 +32,26 @@ export default function Contact() {
       
       const phone = '201104620984'
       const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      if (supabase) {
+        const { error } = await supabase
+          .from('contacts')
+          .insert([{
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            subject: formData.subject,
+            message: formData.message,
+            created_at: new Date().toISOString()
+          }])
+        if (error) throw error
+      }
+
+      setSuccess(true)
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
       window.open(whatsappUrl, '_blank')
       
     } catch (error) {
-      console.error('Error sending message:', error)
+      if (import.meta.env.DEV) console.error('Error sending message:', error)
       const errorMessage = dir === 'ar'
         ? 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى أو التواصل مباشرة عبر الواتساب.'
         : 'An error occurred while sending the message. Please try again or contact us directly via WhatsApp.'
@@ -85,11 +85,24 @@ export default function Contact() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <img 
-              src={contactImage} 
-              alt="Orchid Chemicals Contact" 
-              className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-            />
+            <picture>
+              {Array.isArray(contactPicture && contactPicture.sources)
+                ? contactPicture.sources.map((s) => (
+                    <source key={s.type} srcSet={s.srcset} type={s.type} sizes="(max-width: 768px) 90vw, 50vw" />
+                  ))
+                : null}
+              <img
+                src={(contactPicture && contactPicture.img && contactPicture.img.src) || (typeof contactPicture === 'string' ? contactPicture : '')}
+                srcSet={(contactPicture && contactPicture.img && contactPicture.img.srcset) || undefined}
+                alt="Orchid Chemicals Contact"
+                className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+                width="1200"
+                height="800"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
           </div>
         </div>
       </section>

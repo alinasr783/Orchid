@@ -13,6 +13,7 @@ export default function ServiceDetail() {
 
   const fetchService = useCallback(async () => {
     try {
+      if (!supabase) throw new Error('Supabase not configured')
       const { data, error } = await supabase
         .from('services')
         .select('*')
@@ -22,7 +23,7 @@ export default function ServiceDetail() {
       if (error) throw error
       setService(data)
     } catch (error) {
-      console.error('Error fetching service:', error)
+      if (import.meta.env.DEV) console.error('Error fetching service:', error)
     } finally {
       setLoading(false)
     }

@@ -32,6 +32,7 @@ export default function Partners() {
 
   const fetchPartners = async () => {
     try {
+      if (!supabase) throw new Error('Supabase not configured')
       const { data, error } = await supabase
         .from('partners')
         .select('*')
@@ -39,7 +40,7 @@ export default function Partners() {
         .order('priority', { ascending: true })
 
       if (error) {
-        console.warn('Supabase partners error:', error)
+        if (import.meta.env.DEV) console.warn('Supabase partners error:', error)
         // Use fallback data
         setPartners([
           {
@@ -92,7 +93,7 @@ export default function Partners() {
         setPartners(data || [])
       }
     } catch (err) {
-      console.warn('Network error fetching partners:', err)
+      if (import.meta.env.DEV) console.warn('Network error fetching partners:', err)
       // Use fallback data
       setPartners([
         {

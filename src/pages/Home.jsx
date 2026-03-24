@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { FlaskConical, CheckCircle, ArrowRight, Beaker, TestTube, BarChart3, Microscope, Dna, Building2 } from 'lucide-react'
+import { lazy, Suspense } from 'react'
 import { useLanguage } from '../contexts/useLanguage'
-import Partners from '../components/Partners'
-import heroPicture from '../assits/hero.png?format=avif;webp;png&width=480;768;1024;1440;1920&as=picture'
+import heroPicture from '../assits/hero.png?format=avif;webp&width=480;768;1024;1440;1920&as=picture'
+
+const Partners = lazy(() => import('../components/Partners'))
 
 export default function Home() {
   const { t, dir, language } = useLanguage()
@@ -84,7 +86,7 @@ export default function Home() {
                   ))
                 : null}
               <img 
-                src={(heroPicture && heroPicture.img && heroPicture.img.src) || (typeof heroPicture === 'string' ? heroPicture : '/hero.png')}
+                src={(heroPicture && heroPicture.img && heroPicture.img.src) || (typeof heroPicture === 'string' ? heroPicture : '')}
                 srcSet={(heroPicture && heroPicture.img && heroPicture.img.srcset) || undefined}
                 alt="Orchid Chemicals Hero" 
                 className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl object-contain rounded-2xl shadow-2xl"
@@ -133,7 +135,9 @@ export default function Home() {
       </section>
 
       {/* Partners Section (DB-driven) */}
-      <Partners />
+      <Suspense fallback={<div className="py-16 bg-slate-50 dark:bg-slate-900" />}>
+        <Partners />
+      </Suspense>
 
       {/* CTA */}
       <section className="py-20 bg-emerald-600">

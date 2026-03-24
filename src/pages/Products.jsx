@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { MessageCircle, Search, Filter, Package, ArrowRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/useLanguage'
-import productsImage from '../assits/products.png'
+import productsPicture from '../assits/products.png?format=avif;webp&width=480;768;1024;1440&as=picture'
 
 export default function Products() {
   const { t, dir, language } = useLanguage()
@@ -26,6 +26,7 @@ export default function Products() {
   const fetchProducts = async () => {
     setLoading(true)
     try {
+      if (!supabase) throw new Error('Supabase not configured')
       // Try to fetch from Supabase first
       const { data, error } = await supabase
         .from('products')
@@ -33,7 +34,7 @@ export default function Products() {
         .order('name')
       
       if (error) {
-        console.warn('Supabase error:', error)
+        if (import.meta.env.DEV) console.warn('Supabase error:', error)
         // Don't throw, just use fallback data
       } else if (data && data.length > 0) {
         setProducts(data)
@@ -41,12 +42,12 @@ export default function Products() {
         return
       }
     } catch (err) {
-      console.warn('Network/Supabase error:', err)
+      if (import.meta.env.DEV) console.warn('Network/Supabase error:', err)
       // Continue to fallback data
     }
     
     // Fallback data for when Supabase is not available
-    console.log('Using fallback product data')
+    if (import.meta.env.DEV) console.log('Using fallback product data')
     setProducts([
       { 
         id: 1, 
@@ -101,7 +102,7 @@ export default function Products() {
   useEffect(() => {
     ;(async () => {
       const table = import.meta.env.VITE_PRODUCTS_PAGE_TABLE
-      if (!table) return
+      if (!table || !supabase) return
       try {
         const { data, error } = await supabase
           .from(table)
@@ -160,15 +161,37 @@ export default function Products() {
             </div>
           </div>
           <div className="flex justify-center">
-            <img 
-              src={page.hero_url || productsImage} 
-              alt="Orchid Chemicals Products" 
-              className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-              width="1200"
-              height="800"
-              loading="eager"
-              decoding="async"
-            />
+            {page.hero_url ? (
+              <img
+                src={page.hero_url}
+                alt="Orchid Chemicals Products"
+                className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+                width="1200"
+                height="800"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            ) : (
+              <picture>
+                {Array.isArray(productsPicture && productsPicture.sources)
+                  ? productsPicture.sources.map((s) => (
+                      <source key={s.type} srcSet={s.srcset} type={s.type} sizes="(max-width: 768px) 90vw, 50vw" />
+                    ))
+                  : null}
+                <img
+                  src={(productsPicture && productsPicture.img && productsPicture.img.src) || (typeof productsPicture === 'string' ? productsPicture : '')}
+                  srcSet={(productsPicture && productsPicture.img && productsPicture.img.srcset) || undefined}
+                  alt="Orchid Chemicals Products"
+                  className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+                  width="1200"
+                  height="800"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </picture>
+            )}
           </div>
         </div>
       </section>

@@ -65,6 +65,7 @@ export default function ProductDetail() {
 
   const fetchProduct = useCallback(async () => {
     try {
+      if (!supabase) throw new Error('Supabase not configured')
       const numericId = Number(id)
       const { data, error } = await supabase
         .from('products')
@@ -102,7 +103,7 @@ export default function ProductDetail() {
         setProductImageUrls(fb?.card_image_url ? [fb.card_image_url] : [])
       }
     } catch (error) {
-      console.error('Error fetching product:', error)
+      if (import.meta.env.DEV) console.error('Error fetching product:', error)
       const fb = fallbackProducts.find((p) => p.id === Number(id))
       if (fb) {
         setProduct(fb)

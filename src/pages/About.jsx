@@ -1,6 +1,6 @@
 import { FlaskConical, Award, Users, Calendar, MessageCircle } from 'lucide-react'
 import { useLanguage } from '../contexts/useLanguage'
-import whoUsImage from '../assits/who_us.png'
+import whoUsPicture from '../assits/who_us.png?format=avif;webp&width=480;768;1024;1440&as=picture'
 
 export default function About() {
   const { t, dir, language } = useLanguage()
@@ -95,11 +95,24 @@ export default function About() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <img 
-              src={whoUsImage} 
-              alt="Orchid Chemicals About Us" 
-              className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-            />
+            <picture>
+              {Array.isArray(whoUsPicture && whoUsPicture.sources)
+                ? whoUsPicture.sources.map((s) => (
+                    <source key={s.type} srcSet={s.srcset} type={s.type} sizes="(max-width: 768px) 90vw, 50vw" />
+                  ))
+                : null}
+              <img
+                src={(whoUsPicture && whoUsPicture.img && whoUsPicture.img.src) || (typeof whoUsPicture === 'string' ? whoUsPicture : '')}
+                srcSet={(whoUsPicture && whoUsPicture.img && whoUsPicture.img.srcset) || undefined}
+                alt="Orchid Chemicals About Us"
+                className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+                width="1200"
+                height="800"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
           </div>
         </div>
       </section>

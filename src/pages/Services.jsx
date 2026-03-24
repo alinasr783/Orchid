@@ -1,6 +1,6 @@
 import { CheckCircle, Beaker, TestTube, BarChart3, Microscope, Dna, Building2, MessageCircle } from 'lucide-react'
 import { useLanguage } from '../contexts/useLanguage'
-import servicesImage from '../assits/services.png'
+import servicesPicture from '../assits/services.png?format=avif;webp&width=480;768;1024;1440&as=picture'
 
 export default function Services() {
   const { t, dir, language } = useLanguage()
@@ -152,11 +152,24 @@ export default function Services() {
             <div className="flex flex-wrap gap-4"></div>
           </div>
           <div className="flex justify-center">
-            <img 
-              src={servicesImage} 
-              alt="Orchid Chemicals Services" 
-              className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
-            />
+            <picture>
+              {Array.isArray(servicesPicture && servicesPicture.sources)
+                ? servicesPicture.sources.map((s) => (
+                    <source key={s.type} srcSet={s.srcset} type={s.type} sizes="(max-width: 768px) 90vw, 50vw" />
+                  ))
+                : null}
+              <img
+                src={(servicesPicture && servicesPicture.img && servicesPicture.img.src) || (typeof servicesPicture === 'string' ? servicesPicture : '')}
+                srcSet={(servicesPicture && servicesPicture.img && servicesPicture.img.srcset) || undefined}
+                alt="Orchid Chemicals Services"
+                className="w-full max-w-none object-cover rounded-2xl shadow-2xl"
+                width="1200"
+                height="800"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
           </div>
         </div>
       </section>

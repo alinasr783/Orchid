@@ -60,6 +60,7 @@ export default function Visits() {
     setLoading(true)
     setError('')
     try {
+      if (!supabase) throw new Error('إعدادات الإحصائيات غير متوفرة')
       const { start, end } = rangeFor(k)
       const res = await supabase.rpc('rpc_visits_range_kpis', { start_ts: start, end_ts: end })
       if (res.error) throw res.error
@@ -71,7 +72,7 @@ export default function Visits() {
         ? `تعذر تحميل البيانات: ${e.message}`
         : 'تعذر تحميل البيانات'
       setError(msg)
-      console.error(e)
+      if (import.meta.env.DEV) console.error(e)
     } finally {
       setLoading(false)
     }

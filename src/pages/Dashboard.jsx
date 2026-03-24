@@ -30,6 +30,7 @@ function ProductsPanel() {
     purity: '',
     cas: '',
     card_image_url: '',
+    seo_keywords: [],
   }), [])
   const [items, setItems] = useState([])
   const [form, setForm] = useState(empty)
@@ -38,6 +39,8 @@ function ProductsPanel() {
   const [error, setError] = useState('')
   const [errors, setErrors] = useState({})
   const [savedPulse, setSavedPulse] = useState(false)
+  const [seoKeywordInput, setSeoKeywordInput] = useState('')
+  const [seoKeywordsSaving, setSeoKeywordsSaving] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -65,6 +68,61 @@ function ProductsPanel() {
         return cp
       })
     }
+  }
+
+  function normalizeKeyword(raw) {
+    return String(raw || '').trim().replace(/\s+/g, ' ')
+  }
+
+  function uniqKeywords(list) {
+    const out = []
+    const seen = new Set()
+    for (const kw of Array.isArray(list) ? list : []) {
+      const v = normalizeKeyword(kw)
+      const key = v.toLowerCase()
+      if (!v || seen.has(key)) continue
+      seen.add(key)
+      out.push(v)
+    }
+    return out
+  }
+
+  async function persistSeoKeywords(nextKeywords) {
+    if (!editingId) return
+    setSeoKeywordsSaving(true)
+    setError('')
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ seo_keywords: nextKeywords })
+        .eq('id', editingId)
+      if (error) throw error
+      setSavedPulse(true)
+      setTimeout(() => setSavedPulse(false), 900)
+      await load()
+    } catch (err) {
+      console.error(err)
+      setError('تعذر حفظ الكلمات المفتاحية')
+    } finally {
+      setSeoKeywordsSaving(false)
+    }
+  }
+
+  async function addSeoKeyword(raw) {
+    const v = normalizeKeyword(raw)
+    if (!v) return
+    const current = Array.isArray(form.seo_keywords) ? form.seo_keywords : []
+    const next = uniqKeywords([...current, v])
+    setForm((f) => ({ ...f, seo_keywords: next }))
+    setSeoKeywordInput('')
+    await persistSeoKeywords(next)
+  }
+
+  async function removeSeoKeyword(keyword) {
+    const current = Array.isArray(form.seo_keywords) ? form.seo_keywords : []
+    const next = current.filter((k) => String(k || '').toLowerCase() !== String(keyword || '').toLowerCase())
+    setForm((f) => ({ ...f, seo_keywords: next }))
+    await persistSeoKeywords(next)
   }
 
   async function onUploadCardImage(e) {
@@ -102,19 +160,21 @@ function ProductsPanel() {
     setLoading(true)
     setError('')
     try {
+      const payload = { ...form, seo_keywords: uniqKeywords(form.seo_keywords) }
       if (editingId) {
         const { error } = await supabase
           .from('products')
-          .update(form)
+          .update(payload)
           .eq('id', editingId)
         if (error) throw error
       } else {
         const { error } = await supabase
           .from('products')
-          .insert([form])
+          .insert([payload])
         if (error) throw error
       }
       setForm(empty)
+      setSeoKeywordInput('')
       await load()
       setSavedPulse(true)
       setTimeout(() => setSavedPulse(false), 1200)
@@ -131,6 +191,7 @@ function ProductsPanel() {
     setEditingId(null)
     setForm(empty)
     setErrors({})
+    setSeoKeywordInput('')
   }
 
   async function onEdit(item) {
@@ -142,8 +203,10 @@ function ProductsPanel() {
       purity: item.purity || '',
       cas: item.cas || '',
       card_image_url: item.card_image_url || '',
+      seo_keywords: Array.isArray(item.seo_keywords) ? item.seo_keywords : [],
     })
     setEditingId(item.id)
+    setSeoKeywordInput('')
   }
 
   async function onDelete(id) {
@@ -233,6 +296,50 @@ function ProductsPanel() {
               placeholder="وصف مختصر للمنتج"
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-300"
             />
+          </div>
+          <div className="flex flex-col">
+            <label className="block text-sm mb-2">الكلمات المفتاحية (SEO)</label>
+            <div className="flex flex-col gap-2">
+              <input
+                value={seoKeywordInput}
+                onChange={(e) => setSeoKeywordInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    void addSeoKeyword(seoKeywordInput)
+                  }
+                }}
+                placeholder="اكتب كلمة مفتاحية واضغط Enter"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              />
+              {seoKeywordsSaving && (
+                <div className="text-xs text-slate-500">
+                  جاري حفظ الكلمات المفتاحية...
+                </div>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {(Array.isArray(form.seo_keywords) ? form.seo_keywords : []).map((kw) => (
+                  <button
+                    key={kw}
+                    type="button"
+                    onClick={() => { void removeSeoKeyword(kw) }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-sm"
+                    title="اضغط للحذف"
+                  >
+                    <span>{kw}</span>
+                    <span className="text-slate-500">×</span>
+                  </button>
+                ))}
+                {(Array.isArray(form.seo_keywords) ? form.seo_keywords : []).length === 0 && (
+                  <span className="text-xs text-slate-500">لا توجد كلمات مفتاحية بعد</span>
+                )}
+              </div>
+              {!editingId && (
+                <div className="text-xs text-slate-500">
+                  سيتم حفظ الكلمات المفتاحية عند الضغط على "إضافة".
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex flex-col">
             <label className="block text-sm mb-2">صور المنتج</label>

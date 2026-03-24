@@ -61,21 +61,11 @@ export default function Visits() {
     setError('')
     try {
       const { start, end } = rangeFor(k)
-      const totalRes = await supabase
-        .from('page_views')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', start)
-        .lt('created_at', end)
-      if (totalRes.error) throw totalRes.error
-      const listRes = await supabase
-        .from('page_views')
-        .select('anon_id')
-        .gte('created_at', start)
-        .lt('created_at', end)
-      if (listRes.error) throw listRes.error
-      const uniq = new Set((listRes.data || []).map(r => r.anon_id)).size
-      setTotalVisits(totalRes.count || 0)
-      setUniqueVisitors(uniq)
+      const res = await supabase.rpc('rpc_visits_range_kpis', { start_ts: start, end_ts: end })
+      if (res.error) throw res.error
+      const row = Array.isArray(res.data) ? res.data[0] : null
+      setTotalVisits(Number(row?.total_visits || 0))
+      setUniqueVisitors(Number(row?.unique_visitors || 0))
     } catch (e) {
       const msg = e && typeof e === 'object' && 'message' in e && typeof e.message === 'string' && e.message
         ? `تعذر تحميل البيانات: ${e.message}`

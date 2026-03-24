@@ -140,6 +140,74 @@ export default function ProductDetail() {
   }
 
   useEffect(() => {
+    if (!product) return
+
+    const prevTitle = document.title
+    const descEl = document.querySelector('meta[name="description"]')
+    const keywordsEl = document.querySelector('meta[name="keywords"]')
+    const ogTitleEl = document.querySelector('meta[property="og:title"]')
+    const ogDescEl = document.querySelector('meta[property="og:description"]')
+    const ogUrlEl = document.querySelector('meta[property="og:url"]')
+    const twTitleEl = document.querySelector('meta[name="twitter:title"]')
+    const twDescEl = document.querySelector('meta[name="twitter:description"]')
+
+    const prev = {
+      description: descEl?.getAttribute('content') || '',
+      keywords: keywordsEl?.getAttribute('content') || '',
+      ogTitle: ogTitleEl?.getAttribute('content') || '',
+      ogDesc: ogDescEl?.getAttribute('content') || '',
+      ogUrl: ogUrlEl?.getAttribute('content') || '',
+      twTitle: twTitleEl?.getAttribute('content') || '',
+      twDesc: twDescEl?.getAttribute('content') || '',
+    }
+
+    const title = language === 'ar' ? (product.name_ar || product.name) : product.name
+    const rawDesc = language === 'ar' ? (product.description_ar || product.description) : product.description
+    const description = String(rawDesc || '').trim() || (language === 'ar' ? 'تفاصيل المنتج' : 'Product details')
+
+    const keywordsArr = Array.isArray(product.seo_keywords) ? product.seo_keywords : []
+    const keywordsList = keywordsArr
+      .map((k) => String(k || '').trim())
+      .filter(Boolean)
+    const prevKeywordsList = String(prev.keywords || '')
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean)
+    const keywords = Array.from(new Set([...prevKeywordsList, ...keywordsList].map((k) => k.toLowerCase())))
+      .map((k) => {
+        const original = [...prevKeywordsList, ...keywordsList].find((x) => x.toLowerCase() === k)
+        return original || k
+      })
+      .join(', ')
+
+    document.title = title ? `${title} | Rchid Chemicals` : prevTitle
+    if (descEl) descEl.setAttribute('content', description.slice(0, 300))
+    if (keywordsEl && keywords) keywordsEl.setAttribute('content', keywords)
+
+    if (ogTitleEl) ogTitleEl.setAttribute('content', title || prev.ogTitle)
+    if (ogDescEl) ogDescEl.setAttribute('content', description.slice(0, 300) || prev.ogDesc)
+    if (twTitleEl) twTitleEl.setAttribute('content', title || prev.twTitle)
+    if (twDescEl) twDescEl.setAttribute('content', description.slice(0, 300) || prev.twDesc)
+
+    const urlPath = `/products/${product.id ?? id}`
+    const fullUrl = typeof window !== 'undefined' && window.location?.origin
+      ? new URL(urlPath, window.location.origin).toString()
+      : urlPath
+    if (ogUrlEl) ogUrlEl.setAttribute('content', fullUrl)
+
+    return () => {
+      document.title = prevTitle
+      if (descEl) descEl.setAttribute('content', prev.description)
+      if (keywordsEl) keywordsEl.setAttribute('content', prev.keywords)
+      if (ogTitleEl) ogTitleEl.setAttribute('content', prev.ogTitle)
+      if (ogDescEl) ogDescEl.setAttribute('content', prev.ogDesc)
+      if (ogUrlEl) ogUrlEl.setAttribute('content', prev.ogUrl)
+      if (twTitleEl) twTitleEl.setAttribute('content', prev.twTitle)
+      if (twDescEl) twDescEl.setAttribute('content', prev.twDesc)
+    }
+  }, [product, language, id])
+
+  useEffect(() => {
     if (product?.id || product?.name) {
       trackProductView(product.id ?? product.name)
     }
@@ -341,6 +409,22 @@ export default function ProductDetail() {
                 <p className="text-slate-600 dark:text-slate-400">
                   {language === 'ar' ? product.description_ar : product.description}
                 </p>
+                {Array.isArray(product.seo_keywords) && product.seo_keywords.filter(Boolean).length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {product.seo_keywords
+                      .map((k) => String(k || '').trim())
+                      .filter(Boolean)
+                      .slice(0, 20)
+                      .map((kw) => (
+                        <span
+                          key={kw}
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs"
+                        >
+                          {kw}
+                        </span>
+                      ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

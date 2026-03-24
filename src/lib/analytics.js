@@ -50,8 +50,25 @@ export function trackPageView(path) {
 }
 
 export function trackProductView(productKey) {
-  id()
+  const anon = id()
   inc(PRODUCT_COUNTS_KEY, String(productKey))
+  const productId = Number(productKey)
+  if (!Number.isFinite(productId) || productId <= 0) return
+  const tzOpt = Intl.DateTimeFormat().resolvedOptions()
+  const tz = (tzOpt && tzOpt.timeZone) ? tzOpt.timeZone : 'Unknown'
+  const lang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'Unknown'
+  ;(async () => {
+    try {
+      await supabase
+        .from('product_views')
+        .upsert([{
+          anon_id: anon,
+          product_id: productId,
+          language: lang,
+          timezone: tz
+        }], { onConflict: 'anon_id,product_id,minute_bucket', ignoreDuplicates: true })
+    } catch { void 0 }
+  })()
 }
 
 export function getOverview() {

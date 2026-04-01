@@ -45,15 +45,18 @@ export function trackPageView(path) {
       const ref = typeof document !== 'undefined' ? document.referrer || null : null
       const mod = await import('./supabase')
       if (!mod.supabase) return
-      await mod.supabase
-        .from('page_views')
-        .upsert([{
-          anon_id: anon,
-          path,
-          referrer: ref,
-          language: lang,
-          timezone: tz
-        }], { onConflict: 'anon_id,path,minute_bucket', ignoreDuplicates: true })
+      
+      const now = new Date()
+      const minuteBucket = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes()).toISOString()
+      
+      await mod.supabase.rpc('rpc_track_page_view', {
+        p_anon_id: anon,
+        p_path: path,
+        p_referrer: ref,
+        p_language: lang,
+        p_timezone: tz,
+        p_minute_bucket: minuteBucket
+      })
     } catch { void 0 }
   })
 }
@@ -70,14 +73,17 @@ export function trackProductView(productKey) {
     try {
       const mod = await import('./supabase')
       if (!mod.supabase) return
-      await mod.supabase
-        .from('product_views')
-        .upsert([{
-          anon_id: anon,
-          product_id: productId,
-          language: lang,
-          timezone: tz
-        }], { onConflict: 'anon_id,product_id,minute_bucket', ignoreDuplicates: true })
+      
+      const now = new Date()
+      const minuteBucket = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes()).toISOString()
+      
+      await mod.supabase.rpc('rpc_track_product_view', {
+        p_anon_id: anon,
+        p_product_id: productId,
+        p_language: lang,
+        p_timezone: tz,
+        p_minute_bucket: minuteBucket
+      })
     } catch { void 0 }
   })
 }

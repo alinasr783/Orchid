@@ -29,7 +29,7 @@ export default function Overview() {
 
   useEffect(() => {
     let alive = true
-    ;(async () => {
+    const fetchData = async () => {
       setLoading(true)
       setError('')
       try {
@@ -62,8 +62,14 @@ export default function Overview() {
       } finally {
         if (alive) setLoading(false)
       }
-    })()
-    return () => { alive = false }
+    }
+
+    fetchData()
+    const interval = setInterval(fetchData, 60000) // تحديث تلقائي كل دقيقة
+    return () => { 
+      alive = false 
+      clearInterval(interval)
+    }
   }, [language])
 
   const barMax = Math.max(1, ...data.pages.map(p => p.count))
